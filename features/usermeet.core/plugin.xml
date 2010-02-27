@@ -290,6 +290,7 @@
 		
 		<!-- Custom Field Sources -->
 
+	<!-- 
 		<extension point="usermeet.fields.source">
 			<id>usermeet.fields.source.sensor</id>
 			<name>Sensor</name>
@@ -300,6 +301,7 @@
 			<params>
 			</params>
 		</extension>
+		-->
 		
 		<extension point="usermeet.fields.source">
 			<id>usermeet.fields.source.worker</id>
