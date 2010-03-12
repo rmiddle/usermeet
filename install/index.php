@@ -2,7 +2,7 @@
 /***********************************************************************
 | Usermeet(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2009, WebGroup Media LLC
+| All source code & content (c) Copyright 2010, WebGroup Media LLC
 |   unless specifically noted otherwise.
 |
 | By using this software, you acknowledge having read the license
@@ -271,7 +271,6 @@ switch($step) {
 	case STEP_DATABASE:
 		// Import scope (if post)
 		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
-		@$db_encoding = DevblocksPlatform::importGPC($_POST['db_encoding'],'string');
 		@$db_server = DevblocksPlatform::importGPC($_POST['db_server'],'string');
 		@$db_name = DevblocksPlatform::importGPC($_POST['db_name'],'string');
 		@$db_user = DevblocksPlatform::importGPC($_POST['db_user'],'string');
@@ -297,9 +296,14 @@ switch($step) {
 		$tpl->assign('drivers', $drivers);
 		
 		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
-			// Test the given settings, bypass platform initially
-			$db->Connect($db_server, $db_user, $db_pass, $db_name, false);
-
+			$db_passed = false;
+			
+			if(false != ($_db = mysql_connect($db_server, $db_user, $db_pass))) {
+				if(false !== mysql_select_db($db_name, $_db)) {
+					$db_passed = true;
+				}
+			}
+						
 			$tpl->assign('db_driver', $db_driver);
 			$tpl->assign('db_server', $db_server);
 			$tpl->assign('db_name', $db_name);
@@ -307,11 +311,10 @@ switch($step) {
 			$tpl->assign('db_pass', $db_pass);
 			
 			// If passed, write config file and continue
-			if(!is_null($db) && $db->isConnected()) {
-				$info = $db->GetRow("SHOW VARIABLES LIKE 'character_set_database'");
-				
-				$encoding = (0==strcasecmp($info[1],'utf8')) ? 'utf8' : 'latin1';
-				
+			if($db_passed) {
+				@$row = mysql_fetch_row(mysql_query("SHOW VARIABLES LIKE 'character_set_database'"));
+				$encoding = (is_array($row) && 0==strcasecmp($row[1],'utf8')) ? 'utf8' : 'latin1';
+							
 				// Write database settings to framework.config.php
 				$result = DevblocksInstaller::saveFrameworkConfig($db_driver, $encoding, $db_server, $db_name, $db_user, $db_pass);
 				
@@ -403,6 +406,7 @@ switch($step) {
 				if(is_array($plugins))
 				foreach($plugins as $plugin_manifest) { /* @var $plugin_manifest DevblocksPluginManifest */
 					switch ($plugin_manifest->id) {
+						case "devblocks.core":
 						case "usermeet.core":
 							$plugin_manifest->setEnabled(true);
 							break;
