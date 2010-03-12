@@ -173,6 +173,7 @@ class UmSetupPage extends UsermeetPageExtension  {
         DevblocksPlatform::readPlugins();
 		
 		$plugins = DevblocksPlatform::getPluginRegistry();
+		unset($plugins['devblocks.core']);
 		unset($plugins['usermeet.core']);
 		$tpl->assign('plugins', $plugins);
 		

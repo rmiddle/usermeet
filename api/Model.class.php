@@ -475,12 +475,23 @@ class Um_AbstractViewLoader {
 			// See if the worker has their own saved prefs
 			@$prefs = unserialize(DAO_WorkerPref::get($active_worker->id, 'view'.$view_label));
 
+			// Sanitize
+			if(!empty($prefs)
+				&& $prefs instanceof Um_AbstractViewModel 
+				&& !empty($prefs->class_name)
+			) {
+				if(!class_exists($prefs->class_name))
+					DAO_WorkerPref::delete($active_worker->id, 'view'.$view_label);
+					
+				$prefs = null;
+			}
+			
 			// If no worker prefsd, check if we're passed defaults
-			if((empty($prefs) || !$prefs instanceof Um_AbstractViewModel) && !empty($defaults))
+			if(!$prefs instanceof Um_AbstractViewModel && !empty($defaults))
 				$prefs = $defaults;
 			
 			// Create a default view if it doesn't exist
-			if(!empty($prefs) && $prefs instanceof Um_AbstractViewModel) {
+			if($prefs instanceof Um_AbstractViewModel) {
 				if(!empty($prefs->class_name) || class_exists($prefs->class_name)) {
 					$view = new $prefs->class_name;
 					$view->id = $view_label;

@@ -292,18 +292,7 @@
 
 	<!-- 
 		<extension point="usermeet.fields.source">
-			<id>usermeet.fields.source.sensor</id>
-			<name>Sensor</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>UmCustomFieldSource_Sensor</name>
-			</class>
-			<params>
-			</params>
-		</extension>
 		-->
-		
-		<extension point="usermeet.fields.source">
 			<id>usermeet.fields.source.worker</id>
 			<name>Worker</name>
 			<class>
